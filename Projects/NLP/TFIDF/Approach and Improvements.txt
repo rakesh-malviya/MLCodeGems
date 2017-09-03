@@ -1,0 +1,23 @@
+#Approach:
+Used very simple approach since use of NLP libraries was not allowed
+1) Preprocess:	Take each document in the corpus remove non alphanumeric char
+2) TfIDF vector: Generate TfIdf vector of each document 
+   Link: https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+3) Similarity : Use cosine similarity on TfIDF vectors to find simialr document
+
+#Improvements:
+
+1) Improve TfIDF by
+   a) By removing stopwords (using NLTK library)
+   b) By stemming or lemmatization of word (using NLTK library)
+
+2) Use Solr (This approach is highly scalable):
+   a) Ingest all documents to Solr 
+   b) Do keyword based search using keywords of new document
+   c) Return top N results from Solr
+
+3) Using Deep Learning approach (doc2vec):
+   a) Generate doc2vec from gensim doc2vec library.
+   b) Using most_similar function (of doc2vec) to find topn documents
+
+4) Use ensemble of two or more approaches discussed above.
