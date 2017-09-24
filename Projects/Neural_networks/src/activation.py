@@ -27,7 +27,7 @@ class Tanh:
 
         def tanh_grad(x):
             tanhx = tanh(x)
-            return (1- tanhx) * (1+tanhx)
+            return (1- tanhx*tanhx)
 
         self.func_vec = np.vectorize(tanh)
         self.func_vec_grad = np.vectorize(tanh_grad)

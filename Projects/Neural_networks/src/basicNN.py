@@ -56,7 +56,7 @@ class Dense:
         if self.grad_act_z is None:
             raise ValueError("self.grad_act_z is None")
 
-        return np.dot(np.transpose(self.W),self.delta) * grad_act_z_back
+        return np.matmul(np.transpose(self.W),self.delta) * grad_act_z_back
 
     def accum_grad(self,input_h):
         self.grad_w += np.matmul(self.delta, np.transpose(input_h))
