@@ -5,7 +5,7 @@ From tensorflow playground code
 """
 
 def gen2Spiral(sample=500,noise=0,addSin=False):
-    n = sample/2
+    n = sample//2
     Xdata = []
     Ydata = []
 

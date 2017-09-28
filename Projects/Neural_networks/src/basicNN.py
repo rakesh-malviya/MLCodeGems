@@ -2,12 +2,27 @@ from sklearn.metrics import accuracy_score,mean_squared_error
 import numpy as np
 from activation import Sigmoid,Tanh
 
+def genBatch(X_data,y_data,batch_size):
+    print(X_data.shape,y_data.shape)
+
+    if len(X_data) % batch_size==0:
+        batch_count = len(X_data) // batch_size
+    else:
+        batch_count = len(X_data) // batch_size + 1
+
+    for bid in range(batch_count):
+        start = bid * batch_size
+        end = (bid + 1) * batch_size
+        batch_x = X_data[start:end]
+        batch_y = y_data[start:end]
+        yield batch_x,batch_y
+
 class Dense:
-    def __init__(self,layer_size,input_size,act_func=None):
+    def __init__(self,input_size,layer_size,act_func=None):
         self.layer_size = layer_size
         self.input_size = input_size
-        self.W = np.random.normal(loc=0,scale=1.0,size=(self.layer_size,self.input_size))
-        self.b = np.zeros(shape=(self.layer_size,1)) + 0.1
+        self.W = np.random.normal(loc=0,scale=1.0,size=(self.input_size,self.layer_size))
+        self.b = np.zeros(shape=(1,self.layer_size)) + 0.1
         self.h = None #output
         self.z = None
         self.grad_act_z = None
@@ -26,14 +41,14 @@ class Dense:
     def eval_z(self,input_h):
 
         #Test input shape
-        if input_h.shape[0]!=self.input_size or input_h.shape[1]!=1:
+        if input_h.shape[1]!=self.input_size:
             raise ValueError("input shape : %s expected (%d,1)"
                              %(str(input_h.shape),self.input_size))
 
-        self.z = np.dot(self.W,input_h) + self.b
+        self.z = np.matmul(input_h,self.W) + self.b
 
         # Test z shape
-        if self.z.shape[0] != self.layer_size or self.z.shape[1] != 1:
+        if self.z.shape[1] != self.layer_size:
             raise ValueError("input shape : %s expected (%d,1)"
                              % (str(self.z.shape), self.layer_size))
 
@@ -56,10 +71,10 @@ class Dense:
         if self.grad_act_z is None:
             raise ValueError("self.grad_act_z is None")
 
-        return np.matmul(np.transpose(self.W),self.delta) * grad_act_z_back
+        return np.matmul(self.delta,np.transpose(self.W)) * grad_act_z_back
 
     def accum_grad(self,input_h):
-        self.grad_w += np.matmul(self.delta, np.transpose(input_h))
+        self.grad_w += np.matmul(np.transpose(input_h),self.delta)
         self.grad_b += self.delta
         self.grad_w_count += 1
         self.grad_b_count += 1
@@ -84,11 +99,11 @@ class NeuralNetwork:
 
         cur_input_size = self.input_size
         for cur_layer_size in layers[:-1]:
-            self.layers.append(Dense(cur_layer_size,cur_input_size))
+            self.layers.append(Dense(cur_input_size,cur_layer_size))
             cur_input_size = cur_layer_size
 
 
-        self.layers.append(Dense(layers[-1],cur_input_size,act_func=Sigmoid()))
+        self.layers.append(Dense(cur_input_size,layers[-1],act_func=Sigmoid()))
 
         print([x.layer_size for x in self.layers])
 
@@ -142,9 +157,9 @@ class NeuralNetwork:
         pred_pro_y = []
         for j in range(X_train.shape[0]):
             X = X_train[j, :]
-            X = X.reshape((-1, 1))
+            X = X.reshape((1, -1))
             y = y_train[j]
-            y = y.reshape((-1, 1))
+            y = y.reshape((1, -1))
             y_p = self.forward_step(X)
             pred_pro_y.append(y_p[0])
             if y_p[0] > 0.5:
@@ -163,9 +178,9 @@ class NeuralNetwork:
         for iepo in range(epoch):
             for j in range(X_train.shape[0]):
                 X = X_train[j, :]
-                X = X.reshape((-1, 1))
+                X = X.reshape((1, -1))
                 y = y_train[j]
-                y = y.reshape((-1, 1))
+                y = y.reshape((1, -1))
                 self.train_step(X, y)
 
 
